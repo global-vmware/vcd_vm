@@ -20,3 +20,7 @@ output "all_vm_info" {
     }
   ]
 }
+
+output "vm_count" {
+  value = var.vm_count
+}
