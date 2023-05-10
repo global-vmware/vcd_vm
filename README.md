@@ -1,5 +1,6 @@
 ## VCD Virtual Machine Terraform Module
-This Terraform module will deploy "X" Number of Virtual Machines into Rackspace Technology SDDC Flex VCD Data Center Regions.
+
+This Terraform module will deploy "X" Number of Virtual Machines into an existing VMware Cloud Director (VCD) Environment.  This module can be used to provsion new Virtual Machines into [Rackspace Technology SDDC Flex](https://www.rackspace.com/cloud/private/software-defined-data-center-flex) VCD Data Center Regions.
 
 ## Requirements
 
