@@ -80,7 +80,7 @@ catalog_name | Cloud Director Catalog Name | string | `"VCD Catalog Name Format:
 
 ## Example Usage
 
-This is an example of a `main.tf` file that would use the `"github.com/global-vmware/vcd_vm"` Module Source to deploy Virtual Machines into an existing Virtual Application (vApp).
+This is an example of a `main.tf` file that would use the `"github.com/global-vmware/vcd_vm"` Module Source to deploy Virtual Machines into an existing VCD Environment.
 
 The Terraform code example for the main.tf file is below:
 
@@ -101,7 +101,7 @@ module "vcd_vm" {
 
   vm_count                          = 2
 
-  vapp_org_networks                 = [
+  org_networks                 = [
     { name = "US1-Segment-01" },
     { name = "US1-Segment-02" },
   ]
