@@ -27,8 +27,8 @@ variable "vm_sizing_policy_name" {
   default = "gp2.4"
 }
 
-variable "vapp_org_networks" {
-  description = "List of vApp Org network names"
+variable "org_networks" {
+  description = "List of Org network names"
   type        = list(object({
     name = string
   }))

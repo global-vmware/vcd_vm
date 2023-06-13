@@ -20,7 +20,7 @@ data "vcd_nsxt_edgegateway" "edge_gateway" {
 }
 
 data "vcd_network_routed_v2" "segment" {
-  for_each        = { for net in var.vapp_org_networks : net.name => net }
+  for_each        = { for net in var.org_networks : net.name => net }
   edge_gateway_id = data.vcd_nsxt_edgegateway.edge_gateway.id
   name            = each.value.name
 }
