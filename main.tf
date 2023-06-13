@@ -10,44 +10,57 @@ terraform {
 }
 
 data "vcd_vdc_group" "vdc_group" {
-  name                    = var.vdc_group_name
+  name      = var.vdc_group_name
 }
 
 data "vcd_nsxt_edgegateway" "edge_gateway" {
-  org                     = var.vdc_org_name
-  owner_id                = data.vcd_vdc_group.vdc_group.id
-  name                    = var.vdc_edge_name
+  org       = var.vdc_org_name
+  owner_id  = data.vcd_vdc_group.vdc_group.id
+  name      = var.vdc_edge_name
 }
 
 data "vcd_network_routed_v2" "segment" {
-  edge_gateway_id         = data.vcd_nsxt_edgegateway.edge_gateway.id
-  name                    = var.org_network_name
+  for_each        = { for net in var.vapp_org_networks : net.name => net }
+  edge_gateway_id = data.vcd_nsxt_edgegateway.edge_gateway.id
+  name            = each.value.name
 }
 
 data "vcd_vm_sizing_policy" "sizing_policy" {
-  name                    = var.vm_sizing_policy_name
+  name = var.vm_sizing_policy_name
 }
 
 data "vcd_catalog" "catalog" {
-  name                    = var.catalog_name
+  name = var.catalog_name
 }
 
 data "vcd_catalog_vapp_template" "template" {
-  catalog_id              = data.vcd_catalog.catalog.id
-  name                    = var.catalog_template_name
+  catalog_id = data.vcd_catalog.catalog.id
+  name       = var.catalog_template_name
 }
 
+data "vcd_vapp" "vapp" {
+  name = var.vapp_name
+  org  = var.vdc_org_name
+  vdc  = var.vdc_name
+}
 
-resource "vcd_vm" "vm" {
-  name                    = format("%s %s %s %02d", var.vm_name_environment, var.vm_app_name, var.vm_app_role, count.index + 1)
-  computer_name           = format("%s-%s-%s%02d", var.vm_computer_name_environment, var.vm_computer_name_app_name, var.vm_computer_name_role, count.index + 1)
+resource "vcd_vapp_org_network" "vappOrgNet" {
+  for_each          = { for net in var.vapp_org_networks : net.name => net }
+  vapp_name         = data.vcd_vapp.vapp.name
+  org_network_name  = each.value.name
+}
+
+resource "vcd_vapp_vm" "vm" {
+  for_each = { for i in range(var.vm_count) : i => i }
+
+  vapp_name               = data.vcd_vapp.vapp.name
+  name                    = var.vm_name_format != "" ? format(var.vm_name_format, var.vm_name[each.key % length(var.vm_name)], each.key + 1) : var.vm_name[each.key % length(var.vm_name)]
+  computer_name           = var.computer_name_format != "" ? format(var.computer_name_format, var.computer_name[each.key % length(var.computer_name)], each.key + 1) : var.computer_name[each.key % length(var.computer_name)]
   vapp_template_id        = data.vcd_catalog_vapp_template.template.id
   cpu_hot_add_enabled     = var.vm_cpu_hot_add_enabled
   memory_hot_add_enabled  = var.vm_memory_hot_add_enabled
   sizing_policy_id        = data.vcd_vm_sizing_policy.sizing_policy.id
   cpus                    = var.vm_min_cpu
-
-  count                   = var.vm_count == 0 ? 1 : var.vm_count
 
   dynamic "metadata_entry" {
     for_each              = var.vm_metadata_entries
@@ -61,14 +74,41 @@ resource "vcd_vm" "vm" {
     }
   }
 
-  network {
-    type                = var.network_type
-    adapter_type        = var.network_adapter_type
-    name                = var.org_network_name
-    ip_allocation_mode  = var.network_ip_allocation_mode
-    ip                  = var.network_ip_allocation_mode == "DHCP" ? "" : var.network_ip_allocation_mode == "POOL" ? "" : element(var.vm_ips, count.index)
-    is_primary          = true
+  dynamic "disk" {
+    for_each = can(var.vm_disks) ? slice(var.vm_disks, each.key * var.disks_per_vm, (each.key + 1) * var.disks_per_vm) : []
+
+    content {
+      name        = can(disk.value) ? disk.value.name : null
+      bus_number  = can(disk.value) ? disk.value.bus_number : null
+      unit_number = can(disk.value) ? disk.value.unit_number : null
+    }
   }
+
+  dynamic "network" {
+    for_each = var.network_interfaces
+
+    content {
+      type                = network.value.type
+      adapter_type        = network.value.adapter_type
+      name                = network.value.name
+      ip_allocation_mode  = network.value.ip_allocation_mode
+      ip                  = network.value.ip_allocation_mode == "MANUAL" ? element(var.vm_ips, each.key * var.vm_ips_index_multiplier + network.key) : ""
+      is_primary          = network.value.is_primary
+    }
+  }
+
+  dynamic "override_template_disk" {
+    for_each = var.override_template_disks
+
+    content {
+      bus_type        = override_template_disk.value.bus_type
+      size_in_mb      = override_template_disk.value.size_in_mb
+      bus_number      = override_template_disk.value.bus_number
+      unit_number     = override_template_disk.value.unit_number
+      iops            = override_template_disk.value.iops
+      storage_profile = override_template_disk.value.storage_profile
+    }
+  }  
 
   customization {
     force                               = var.vm_customization_force
@@ -87,6 +127,6 @@ resource "vcd_vm" "vm" {
     join_domain_account_ou              = var.vm_customization_join_domain_account_ou
     initscript                          = var.vm_customization_initscript
   }
+  
+  depends_on = [vcd_vapp_org_network.vappOrgNet]
 }
-
-

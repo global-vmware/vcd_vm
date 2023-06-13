@@ -27,9 +27,12 @@ variable "vm_sizing_policy_name" {
   default = "gp2.4"
 }
 
-variable "org_network_name" {
-  type = string
-  default = ""
+variable "vapp_org_networks" {
+  description = "List of vApp Org network names"
+  type        = list(object({
+    name = string
+  }))
+  default     = []
 }
 
 variable "catalog_name" {
@@ -42,34 +45,33 @@ variable "catalog_template_name" {
   default = ""
 }
 
-variable "vm_name_environment" {
+variable "vapp_name" {
   type = string
-  default = "Prod"
+  default = "Production Application vApp"
 }
 
-variable "vm_app_name" {
-  type = string
-  default = "App"
+variable "vm_name_format" {
+  type        = string
+  description = "Format for the VM name"
+  default     = "%s %02d"
 }
 
-variable "vm_app_role" {
-  type = string
-  default = "Web"
+variable "vm_name" {
+  type        = list(string)
+  description = "List of VM names"
+  default     = []
 }
 
-variable "vm_computer_name_environment" {
-  type = string
-  default = "pd"
+variable "computer_name_format" {
+  type        = string
+  description = "Format for the computer name"
+  default     = "%s-%02d"
 }
 
-variable "vm_computer_name_app_name" {
-  type = string
-  default = "app"
-}
-
-variable "vm_computer_name_role" {
-  type = string
-  default = "web"
+variable "computer_name" {
+  type        = list(string)
+  description = "List of computer names"
+  default     = []
 }
 
 variable "vm_cpu_hot_add_enabled" {
@@ -126,24 +128,56 @@ variable "vm_metadata_entries" {
   ]
 }
 
-variable "network_type" {
-  type = string
-  default = "org"
+variable "disks_per_vm" {
+  description = "Number of disks to assign to each VM"
+  type        = number
+  default     = 0
 }
 
-variable "network_adapter_type" {
-  type = string
-  default = "VMXNET3"
+variable "vm_disks" {
+  description = "List of disks per virtual machine"
+  type        = list(object({
+    name        = string
+    bus_number  = number
+    unit_number = number
+  }))
+  default     = []
 }
 
-variable "network_ip_allocation_mode" {
-  type = string
-  default = "MANUAL"
+variable "network_interfaces" {
+  description = "List of network interfaces for the VM"
+  type        = list(object({
+    type                = string
+    adapter_type        = string
+    name                = string
+    ip_allocation_mode  = string
+    ip                  = string
+    is_primary          = bool
+  }))
+  default = [
+    {
+      type                = "org"
+      adapter_type        = "VMXNET3"
+      name                = "Segment-01"
+      ip_allocation_mode  = "POOL"
+      ip                  = ""
+      is_primary          = true
+    },
+    {
+      type                = "org"
+      adapter_type        = "VMXNET3"
+      name                = "Segment-02"
+      ip_allocation_mode  = "POOL"
+      ip                  = ""
+      is_primary          = false
+    }
+  ]
 }
 
-variable "network_cidr" {
-  type = string
-  default = ""
+variable "vm_ips_index_multiplier" {
+  description = "Number of network interfaces for each VM deployment"
+  type        = number
+  default     = 1
 }
 
 variable "vm_ips" {
@@ -151,6 +185,18 @@ variable "vm_ips" {
   default = ["", ""]
 }
 
+variable "override_template_disks" {
+  description = "A list of disks to override in the vApp template."
+  type = list(object({
+    bus_type        = string
+    size_in_mb      = number
+    bus_number      = number
+    unit_number     = number
+    iops            = number
+    storage_profile = string
+  }))
+  default = []
+}
 
 variable "vm_customization_force" {
   description = "Warning. Setting to true will cause the VM to reboot on every apply operation. This field works as a flag and triggers force customization when true during an update (terraform apply) every time. It never complains about a change in statefile. Can be used when guest customization is needed after VM configuration (e.g. NIC change, customization options change, etc.) and then set back to false. Note. It will not have effect when power_on field is set to false."
