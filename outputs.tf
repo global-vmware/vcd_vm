@@ -1,6 +1,6 @@
 output "all_vm_info" {
   value = [
-    for index, vm in vcd_vapp_vm.vm : {
+    for index, vm in vcd_vm.vm : {
       name              = vm.name
       ip                = vm.network[*].ip
       computer_name     = vm.computer_name

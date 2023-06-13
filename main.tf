@@ -38,22 +38,9 @@ data "vcd_catalog_vapp_template" "template" {
   name       = var.catalog_template_name
 }
 
-data "vcd_vapp" "vapp" {
-  name = var.vapp_name
-  org  = var.vdc_org_name
-  vdc  = var.vdc_name
-}
-
-resource "vcd_vapp_org_network" "vappOrgNet" {
-  for_each          = { for net in var.vapp_org_networks : net.name => net }
-  vapp_name         = data.vcd_vapp.vapp.name
-  org_network_name  = each.value.name
-}
-
-resource "vcd_vapp_vm" "vm" {
+resource "vcd_vm" "vm" {
   for_each = { for i in range(var.vm_count) : i => i }
 
-  vapp_name               = data.vcd_vapp.vapp.name
   name                    = var.vm_name_format != "" ? format(var.vm_name_format, var.vm_name[each.key % length(var.vm_name)], each.key + 1) : var.vm_name[each.key % length(var.vm_name)]
   computer_name           = var.computer_name_format != "" ? format(var.computer_name_format, var.computer_name[each.key % length(var.computer_name)], each.key + 1) : var.computer_name[each.key % length(var.computer_name)]
   vapp_template_id        = data.vcd_catalog_vapp_template.template.id
@@ -127,6 +114,4 @@ resource "vcd_vapp_vm" "vm" {
     join_domain_account_ou              = var.vm_customization_join_domain_account_ou
     initscript                          = var.vm_customization_initscript
   }
-  
-  depends_on = [vcd_vapp_org_network.vappOrgNet]
 }
