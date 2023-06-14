@@ -30,6 +30,7 @@ This Terraform module will deploy "X" Number of Virtual Machines into an existin
 | vdc_name | Cloud Director VDC Name | string | `"Virtual Data Center Name Format: <Account_Number>-<Region>-<Segment Name>"` | Yes |
 | vcd_edge_name | Name of the Data Center Group Edge Gateway | string | `"Edge Gateway Name Format: <Account_Number>-<Region>-<Edge_GW_Identifier>-<edge>"` | Yes |
 | vm_sizing_policy_name | Cloud Director VM Sizing Policy Name | string | "gp2.4" | no |
+| org_networks | List of Org network names | list(object({ name = string })) | [] | yes |
 catalog_name | Cloud Director Catalog Name | string | `"VCD Catalog Name Format: <Account_Number>-<Region>-<catalog>"` | Yes |
 | catalog_template_name | Cloud Director Catalog Template Name | string | "" | Yes |
 | vm_name_format | Format for the VM name | string | "%s %02d" | no |
