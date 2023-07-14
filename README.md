@@ -27,12 +27,13 @@ This Terraform module will deploy "X" Number of Virtual Machines into an existin
 |------|-------------|------|---------|----------|
 | vdc_org_name | The name of the Data Center Group Organization in VCD | string | `"Organization Name Format: <Account_Number>-<Region>-<Account_Name>"` | yes |
 | vdc_group_name | The name of the Data Center Group in VCD | string | `"Data Center Group Name Format: <Account_Number>-<Region>-<Account_Name> <datacenter group>"` | yes |
-| vdc_name | Cloud Director VDC Name | string | `"Virtual Data Center Name Format: <Account_Number>-<Region>-<Segment Name>"` | Yes |
-| vcd_edge_name | Name of the Data Center Group Edge Gateway | string | `"Edge Gateway Name Format: <Account_Number>-<Region>-<Edge_GW_Identifier>-<edge>"` | Yes |
+| vdc_name | Cloud Director VDC Name | string | `"Virtual Data Center Name Format: <Account_Number>-<Region>-<Segment Name>"` | yes |
+| vcd_edge_name | Name of the Data Center Group Edge Gateway | string | `"Edge Gateway Name Format: <Account_Number>-<Region>-<Edge_GW_Identifier>-<edge>"` | yes |
 | vm_sizing_policy_name | Cloud Director VM Sizing Policy Name | string | "gp2.4" | no |
 | org_networks | List of Org network names | list(object({ name = string })) | [] | yes |
-catalog_name | Cloud Director Catalog Name | string | `"VCD Catalog Name Format: <Account_Number>-<Region>-<catalog>"` | Yes |
-| catalog_template_name | Cloud Director Catalog Template Name | string | "" | Yes |
+| catalog_org_name | Cloud Director Organization Name for your Catalog | string | `"Organization Name Format: <Account_Number>-<Region>-<Account_Name>"` | yes |
+| catalog_name | Cloud Director Catalog Name | string | `"VCD Catalog Name Format: <Account_Number>-<Region>-<catalog>"` | yes |
+| catalog_template_name | Cloud Director Catalog Template Name | string | "" | yes |
 | vm_name_format | Format for the VM name | string | "%s %02d" | no |
 | vm_name | List of VM names | list(string) | [] | no |
 | computer_name_format | Format for the computer name | string | "%s-%02d" | no |
@@ -87,13 +88,14 @@ The Terraform code example for the main.tf file is below:
 
 ```terraform
 module "vcd_vm" {
-  source                            = "github.com/global-vmware/vcd_vm.git?ref=v2.0.0"
+  source                            = "github.com/global-vmware/vcd_vm.git?ref=v2.1.0"
 
   vdc_org_name                      = "<US1-VDC-ORG-NAME>"
   vdc_group_name                    = "<US1-VDC-GRP-NAME>"
   vdc_name                          = "<US1-VDC-NAME>"
   vdc_edge_name                     = "<US1-VDC-EDGE-NAME>"
 
+  catalog_org_name                  = "<US1-CATALOG-ORG-NAME>"
   catalog_name                      = "<US1-CATALOG-NAME>"
   catalog_template_name             = "<US1-CATALOG-TEMPLATE-NAME>"
 

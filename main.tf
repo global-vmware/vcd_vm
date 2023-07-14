@@ -30,7 +30,8 @@ data "vcd_vm_sizing_policy" "sizing_policy" {
 }
 
 data "vcd_catalog" "catalog" {
-  name = var.catalog_name
+  org   = var.catalog_org_name
+  name  = var.catalog_name
 }
 
 data "vcd_catalog_vapp_template" "template" {

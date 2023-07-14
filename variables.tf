@@ -35,6 +35,10 @@ variable "org_networks" {
   default     = []
 }
 
+variable "catalog_org_name" {
+  type = string
+}
+
 variable "catalog_name" {
   type = string
   default = ""
