@@ -38,8 +38,8 @@ This Terraform module will deploy "X" Number of Virtual Machines into an existin
 | vm_name | List of VM names | list(string) | [] | no |
 | computer_name_format | Format for the computer name | string | "%s-%02d" | no |
 | computer_name | List of computer names | list(string) | [] | no |
-| vm_cpu_hot_add_enabled | Flag to enable or disable hot adding CPUs to VMs | bool | true | no |
-| vm_memory_hot_add_enabled | Flag to enable or disable hot adding memory to VMs | bool | true | no |
+| vm_cpu_hot_add_enabled | Flag to enable or disable hot adding CPUs to VMs | bool | false | no |
+| vm_memory_hot_add_enabled | Flag to enable or disable hot adding memory to VMs | bool | false | no |
 | vm_min_cpu | Minimum number of CPUs for each VM | number | 2 | no |
 | vm_count | Number of VMs to create | number | 2 | no |
 | vm_metadata_entries | List of metadata entries for the VM | list(object({ key = string, value = string, type = string, user_access = string, is_system = bool })) | `[{ key = "Built By", value = "Terraform", type = "MetadataStringValue", user_access = "READWRITE", is_system = false }, { key = "Operating System", value = "Ubuntu Linux (64-Bit)", type = "MetadataStringValue", user_access = "READWRITE", is_system = false }, { key = "Server Role", value = "Web Server", type = "MetadataStringValue", user_access = "READWRITE", is_system = false }]` | No |

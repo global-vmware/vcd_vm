@@ -75,12 +75,12 @@ variable "computer_name" {
 
 variable "vm_cpu_hot_add_enabled" {
   type = bool
-  default = true
+  default = false
 }
 
 variable "vm_memory_hot_add_enabled" {
   type = bool
-  default = true
+  default = false
 }
 
 variable "vm_min_cpu" {
