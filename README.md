@@ -51,7 +51,7 @@ This Terraform module will deploy "X" Number of Virtual Machines into an existin
 | override_template_disks | A list of disks to override in the vApp template | list(object({ bus_type = string, size_in_mb = number, bus_number = number, unit_number = number, iops = number, storage_profile = string })) | [] | no |
 | vm_customization_force | Specifies whether to force the customization even if the VM is powered on | bool | false | no |
 | vm_customization_enabled | Specifies whether to enable customization of the VM | bool | true | no |
-| vm_customization_change_sid | Specifies whether to generate a new SID for the Windows VM | bool | false | no |
+| vm_customization_change_sid | Specifies whether to generate a new SID for the Windows VM | bool | true | no |
 | vm_customization_allow_local_admin_password | Specifies whether to allow the use of local administrator passwords | bool | true | no |
 | vm_customization_must_change_password_on_first_login | Specifies whether the user must change the password on the first login | bool | false | no |
 | vm_customization_auto_generate_password | Specifies whether to automatically generate a password for the local administrator account | bool | true | no |
