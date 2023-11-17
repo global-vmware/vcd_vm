@@ -212,7 +212,7 @@ variable "vm_customization_enabled" {
 variable "vm_customization_change_sid" {
   description = "Allows to change SID (security identifier). Only applicable for Windows operating systems."
   type        = bool
-  default     = false
+  default     = true
 }
 
 variable "vm_customization_allow_local_admin_password" {
