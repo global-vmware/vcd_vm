@@ -1,6 +1,6 @@
 # VCD Virtual Machine Terraform Module
 
-This Terraform module will deploy "X" Number of Virtual Machines into an existing VMware Cloud Director (VCD) Environment.  This module can be used to provsion new Virtual Machines into [Rackspace Technology SDDC Flex](https://www.rackspace.com/cloud/private/software-defined-data-center-flex) VCD Data Center Regions.
+This Terraform module will deploy "X" Number of Virtual Machines into an existing VMware Cloud Director (VCD) Environment.  This module can be used to provision new Virtual Machines into [Rackspace Technology SDDC Flex](https://www.rackspace.com/cloud/private/software-defined-data-center-flex) VCD Data Center Regions.
 
 ## Requirements
 
@@ -88,7 +88,7 @@ The Terraform code example for the main.tf file is below:
 
 ```terraform
 module "vcd_vm" {
-  source                            = "github.com/global-vmware/vcd_vm.git?ref=v2.1.0"
+  source                            = "github.com/global-vmware/vcd_vm.git?ref=v2.1.1"
 
   vdc_org_name                      = "<US1-VDC-ORG-NAME>"
   vdc_group_name                    = "<US1-VDC-GRP-NAME>"
