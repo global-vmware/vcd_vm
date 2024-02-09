@@ -8,6 +8,8 @@
 secrets.tfvars
 secrets.auto.tfvars
 providers.tf
+terraform.tfvars
+terraform.auto.tfvars
 
 # Crash log files
 crash.log
