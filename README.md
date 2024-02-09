@@ -16,6 +16,7 @@ This Terraform module will deploy "X" Number of Virtual Machines into an existin
 | [vcd_vdc_group](https://registry.terraform.io/providers/vmware/vcd/latest/docs/data-sources/vdc_group) | data source |
 | [vcd_nsxt_edgegateway](https://registry.terraform.io/providers/vmware/vcd/latest/docs/data-sources/nsxt_edgegateway) | data source |
 | [vcd_network_routed_v2](https://registry.terraform.io/providers/vmware/vcd/latest/docs/data-sources/network_routed_v2) | data source |
+| [vcd_network_isolated_v2](https://registry.terraform.io/providers/vmware/vcd/latest/docs/data-sources/network_isolated_v2) | data source |
 | [vcd_vm_sizing_policy](https://registry.terraform.io/providers/vmware/vcd/latest/docs/data-sources/vm_sizing_policy) | data source |
 | [vcd_catalog](https://registry.terraform.io/providers/vmware/vcd/latest/docs/data-sources/catalog) | data source |
 | [vcd_catalog_vapp_template](https://registry.terraform.io/providers/vmware/vcd/latest/docs/data-sources/catalog_vapp_template) | data source |
@@ -30,7 +31,7 @@ This Terraform module will deploy "X" Number of Virtual Machines into an existin
 | vdc_name | Cloud Director VDC Name | string | `"Virtual Data Center Name Format: <Account_Number>-<Region>-<Segment Name>"` | yes |
 | vcd_edge_name | Name of the Data Center Group Edge Gateway | string | `"Edge Gateway Name Format: <Account_Number>-<Region>-<Edge_GW_Identifier>-<edge>"` | yes |
 | vm_sizing_policy_name | Cloud Director VM Sizing Policy Name | string | "gp2.4" | no |
-| org_networks | List of Org network names | list(object({ name = string })) | [] | yes |
+| org_networks | List of Org network names | list(object({ name = string, type = string })) | [] | yes |
 | catalog_org_name | Cloud Director Organization Name for your Catalog | string | `"Organization Name Format: <Account_Number>-<Region>-<Account_Name>"` | yes |
 | catalog_name | Cloud Director Catalog Name | string | `"VCD Catalog Name Format: <Account_Number>-<Region>-<catalog>"` | yes |
 | catalog_template_name | Cloud Director Catalog Template Name | string | "" | yes |
@@ -88,7 +89,7 @@ The Terraform code example for the main.tf file is below:
 
 ```terraform
 module "vcd_vm" {
-  source                            = "github.com/global-vmware/vcd_vm.git?ref=v2.1.1"
+  source                            = "github.com/global-vmware/vcd_vm.git?ref=v2.2.0"
 
   vdc_org_name                      = "<US1-VDC-ORG-NAME>"
   vdc_group_name                    = "<US1-VDC-GRP-NAME>"
@@ -105,8 +106,8 @@ module "vcd_vm" {
   vm_count                          = 2
 
   org_networks                 = [
-    { name = "US1-Segment-01" },
-    { name = "US1-Segment-02" },
+    { name = "US1-Segment-01", type = "routed" },
+    { name = "US1-Segment-02", type = "routed" }
   ]
 
   vm_name                           = ["Production App Web Server"]
