@@ -28,11 +28,12 @@ variable "vm_sizing_policy_name" {
 }
 
 variable "org_networks" {
-  description = "List of Org network names"
-  type        = list(object({
+  description = "List of Org networks with their types"
+  type = list(object({
     name = string
+    type = string
   }))
-  default     = []
+  default = []
 }
 
 variable "catalog_org_name" {

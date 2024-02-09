@@ -20,11 +20,22 @@ data "vcd_nsxt_edgegateway" "edge_gateway" {
   name      = var.vdc_edge_name
 }
 
-data "vcd_network_routed_v2" "segment" {
-  for_each        = { for net in var.org_networks : net.name => net }
+locals {
+  network_data = { for net in var.org_networks : net.name => net }
+}
+
+data "vcd_network_routed_v2" "segment_routed" {
+  for_each        = { for name, net in local.network_data : name => net if net.type == "routed" }
   org             = var.vdc_org_name
   edge_gateway_id = data.vcd_nsxt_edgegateway.edge_gateway.id
   name            = each.value.name
+}
+
+data "vcd_network_isolated_v2" "segment_isolated" {
+  for_each = { for name, net in local.network_data : name => net if net.type == "isolated" }
+  org      = var.vdc_org_name
+  owner_id = data.vcd_vdc_group.vdc_group.id
+  name     = each.value.name
 }
 
 data "vcd_vm_sizing_policy" "sizing_policy" {
@@ -77,11 +88,10 @@ resource "vcd_vm" "vm" {
   }
 
   dynamic "network" {
-    for_each = var.network_interfaces
+  for_each = var.network_interfaces
 
     content {
       type                = network.value.type
-      adapter_type        = network.value.adapter_type
       name                = network.value.name
       ip_allocation_mode  = network.value.ip_allocation_mode
       ip                  = network.value.ip_allocation_mode == "MANUAL" ? element(var.vm_ips, each.key * var.vm_ips_index_multiplier + network.key) : ""
