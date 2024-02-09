@@ -10,6 +10,7 @@ terraform {
 }
 
 data "vcd_vdc_group" "vdc_group" {
+  org       = var.vdc_org_name
   name      = var.vdc_group_name
 }
 
@@ -21,6 +22,7 @@ data "vcd_nsxt_edgegateway" "edge_gateway" {
 
 data "vcd_network_routed_v2" "segment" {
   for_each        = { for net in var.org_networks : net.name => net }
+  org             = var.vdc_org_name
   edge_gateway_id = data.vcd_nsxt_edgegateway.edge_gateway.id
   name            = each.value.name
 }
@@ -35,13 +37,15 @@ data "vcd_catalog" "catalog" {
 }
 
 data "vcd_catalog_vapp_template" "template" {
-  catalog_id = data.vcd_catalog.catalog.id
-  name       = var.catalog_template_name
+  org         = var.vdc_org_name
+  catalog_id  = data.vcd_catalog.catalog.id
+  name        = var.catalog_template_name
 }
 
 resource "vcd_vm" "vm" {
   for_each = { for i in range(var.vm_count) : i => i }
-
+  org                     = var.vdc_org_name
+  vdc                     = var.vdc_name
   name                    = var.vm_name_format != "" ? format(var.vm_name_format, var.vm_name[each.key % length(var.vm_name)], each.key + 1) : var.vm_name[each.key % length(var.vm_name)]
   computer_name           = var.computer_name_format != "" ? format(var.computer_name_format, var.computer_name[each.key % length(var.computer_name)], each.key + 1) : var.computer_name[each.key % length(var.computer_name)]
   vapp_template_id        = data.vcd_catalog_vapp_template.template.id
