@@ -6,8 +6,8 @@ This Terraform module will deploy "X" Number of Virtual Machines into an existin
 
 | Name | Version |
 |------|---------|
-| terraform | ~> 1.2 |
-| vcd | ~> 3.8.2 |
+| terraform | ~> 1.5 |
+| vcd | ~> 3.9 |
 
 ## Resources
 
@@ -31,7 +31,7 @@ This Terraform module will deploy "X" Number of Virtual Machines into an existin
 | vdc_name | Cloud Director VDC Name | string | `"Virtual Data Center Name Format: <Account_Number>-<Region>-<Segment Name>"` | yes |
 | vcd_edge_name | Name of the Data Center Group Edge Gateway | string | `"Edge Gateway Name Format: <Account_Number>-<Region>-<Edge_GW_Identifier>-<edge>"` | yes |
 | vm_sizing_policy_name | Cloud Director VM Sizing Policy Name | string | "gp2.4" | no |
-| org_networks | List of Org network names | list(object({ name = string, type = string })) | [] | yes |
+| org_networks | List of Org networks (type can equal "routed" or "isolated") | list(object({ name = string, type = string })) | [] | yes |
 | catalog_org_name | Cloud Director Organization Name for your Catalog | string | `"Organization Name Format: <Account_Number>-<Region>-<Account_Name>"` | yes |
 | catalog_name | Cloud Director Catalog Name | string | `"VCD Catalog Name Format: <Account_Number>-<Region>-<catalog>"` | yes |
 | catalog_template_name | Cloud Director Catalog Template Name | string | "" | yes |
