@@ -103,29 +103,7 @@ variable "vm_metadata_entries" {
     user_access = string
     is_system   = bool
   }))
-  default = [
-    {
-      key         = "Built By"
-      value       = "Terraform"
-      type        = "MetadataStringValue"
-      user_access = "READWRITE"
-      is_system   = false
-    },
-    {
-      key         = "Operating System"
-      value       = "Ubuntu Linux (64-Bit)"
-      type        = "MetadataStringValue"
-      user_access = "READWRITE"
-      is_system   = false
-    },
-    {
-      key         = "Server Role"
-      value       = "Web Server"
-      type        = "MetadataStringValue"
-      user_access = "READWRITE"
-      is_system   = false
-    }
-  ]
+  default = []
 }
 
 variable "disks_per_vm" {
@@ -154,24 +132,7 @@ variable "network_interfaces" {
     ip                  = string
     is_primary          = bool
   }))
-  default = [
-    {
-      type                = "org"
-      adapter_type        = "VMXNET3"
-      name                = "Segment-01"
-      ip_allocation_mode  = "POOL"
-      ip                  = ""
-      is_primary          = true
-    },
-    {
-      type                = "org"
-      adapter_type        = "VMXNET3"
-      name                = "Segment-02"
-      ip_allocation_mode  = "POOL"
-      ip                  = ""
-      is_primary          = false
-    }
-  ]
+  default = []
 }
 
 variable "vm_ips_index_multiplier" {
