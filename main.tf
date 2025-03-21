@@ -53,6 +53,72 @@ data "vcd_catalog_vapp_template" "template" {
   name        = var.catalog_template_name
 }
 
+data "vcd_catalog" "boot_catalog" {
+  for_each = var.boot_catalog_name != "" ? { "boot_catalog" = var.boot_catalog_name } : {}
+  org      = var.boot_catalog_org_name
+  name     = each.value
+}
+
+data "vcd_catalog_media" "inserted_media_iso" {
+  for_each   = var.inserted_media_iso_name != "" ? { "inserted_media_iso" = var.inserted_media_iso_name } : {}
+  org        = var.catalog_org_name
+  catalog_id = var.boot_catalog_name != "" ? data.vcd_catalog.boot_catalog["boot_catalog"].id : null
+  name       = each.value
+}
+
+data "vcd_catalog_media" "boot_image_iso" {
+  count      = var.boot_iso_image_name != "" ? 1 : 0
+  org        = var.catalog_org_name
+  catalog_id = var.boot_catalog_name != "" ? data.vcd_catalog.boot_catalog["boot_catalog"].id : null
+  name       = var.boot_iso_image_name
+}
+
+resource "vcd_inserted_media" "media_iso" {
+  for_each    = var.inserted_media_iso_name != "" ? zipmap(var.vm_name, var.vm_name) : {}
+  org         = var.vdc_org_name
+  catalog     = var.boot_catalog_name
+  name        = var.inserted_media_iso_name
+  vapp_name   = vcd_vm.vm[each.key].vapp_name
+  vm_name     = vcd_vm.vm[each.key].name
+
+  eject_force = var.inserted_media_eject_force
+
+  depends_on = [vcd_vm.vm]
+}
+
+resource "vcd_vm_internal_disk" "internal_disk" {
+  for_each = {
+  for idx, disk in flatten([
+    for vm_index, vm in vcd_vm.vm : [
+      for disk in var.internal_disks : {
+        vm_index       = vm_index
+        vm_name        = vm.name
+        size_in_mb     = disk.size_in_mb
+        bus_number     = disk.bus_number
+        unit_number    = disk.unit_number
+        bus_type       = disk.bus_type
+        iops           = disk.iops
+        storage_profile = disk.storage_profile
+      }
+    ]
+  ]) : "${disk.vm_index}-${disk.unit_number}" => disk
+}
+
+  org         = var.vdc_org_name
+  vdc         = var.vdc_name
+  vapp_name   = vcd_vm.vm[each.value.vm_index].vapp_name
+  vm_name     = each.value.vm_name
+  size_in_mb  = each.value.size_in_mb
+  bus_number  = each.value.bus_number
+  unit_number = each.value.unit_number
+  bus_type    = each.value.bus_type
+  iops        = each.value.iops
+  storage_profile = each.value.storage_profile
+  allow_vm_reboot = var.vm_internal_disk_allow_vm_reboot
+
+  depends_on = [vcd_vm.vm]
+}
+
 resource "vcd_vm" "vm" {
   for_each = { for i in range(var.vm_count) : i => i }
   org                     = var.vdc_org_name
@@ -64,7 +130,21 @@ resource "vcd_vm" "vm" {
   memory_hot_add_enabled  = var.vm_memory_hot_add_enabled
   sizing_policy_id        = data.vcd_vm_sizing_policy.sizing_policy.id
   cpus                    = var.vm_min_cpu
+  os_type                 = var.vm_os_type
+  hardware_version        = var.vm_hw_version
+  firmware                = var.vm_firmware
 
+  boot_options {
+    boot_delay          = var.vm_boot_delay
+    boot_retry_enabled  = var.vm_boot_retry_enabled
+    boot_retry_delay    = var.vm_boot_retry_delay
+    efi_secure_boot     = var.vm_efi_secure_boot
+    enter_bios_setup_on_next_boot = var.vm_enter_bios_setup_on_next_boot
+
+  }
+
+  boot_image_id = var.boot_iso_image_name != "" ? data.vcd_catalog_media.boot_image_iso[0].id : null
+  
   dynamic "metadata_entry" {
     for_each              = var.vm_metadata_entries
 

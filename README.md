@@ -20,6 +20,9 @@ This Terraform module will deploy "X" Number of Virtual Machines into an existin
 | [vcd_vm_sizing_policy](https://registry.terraform.io/providers/vmware/vcd/latest/docs/data-sources/vm_sizing_policy) | data source |
 | [vcd_catalog](https://registry.terraform.io/providers/vmware/vcd/latest/docs/data-sources/catalog) | data source |
 | [vcd_catalog_vapp_template](https://registry.terraform.io/providers/vmware/vcd/latest/docs/data-sources/catalog_vapp_template) | data source |
+| [vcd_catalog_media](https://registry.terraform.io/providers/vmware/vcd/latest/docs/data-sources/catalog_media) | data source |
+| [vcd_inserted_media](https://registry.terraform.io/providers/vmware/vcd/latest/docs/resources/inserted_media) | resource |
+| [vcd_vm_internal_disk](https://registry.terraform.io/providers/vmware/vcd/latest/docs/resources/vm_internal_disk) | resource |
 | [vcd_vm](https://registry.terraform.io/providers/vmware/vcd/latest/docs/resources/vm) | resource |
 
 ## Inputs
@@ -35,6 +38,11 @@ This Terraform module will deploy "X" Number of Virtual Machines into an existin
 | catalog_org_name | Cloud Director Organization Name for your Catalog | string | `"Organization Name Format: <Account_Number>-<Region>-<Account_Name>"` | yes |
 | catalog_name | Cloud Director Catalog Name | string | `"VCD Catalog Name Format: <Account_Number>-<Region>-<catalog>"` | yes |
 | catalog_template_name | Cloud Director Catalog Template Name | string | "" | yes |
+| boot_catalog_org_name | Organization name for boot catalog | string | `""` | no |
+| boot_catalog_name | Catalog name for boot media | string | `""` | no |
+| boot_iso_image_name | ISO name for boot image | string | `""` | no |
+| inserted_media_iso_name | ISO name for inserted boot media | string | `""` | no |
+| inserted_media_eject_force | Force eject ISO if locked | bool | `true` | no |
 | vm_name_format | Format for the VM name | string | "%s %02d" | no |
 | vm_name | List of VM names | list(string) | [] | no |
 | computer_name_format | Format for the computer name | string | "%s-%02d" | no |
@@ -42,10 +50,20 @@ This Terraform module will deploy "X" Number of Virtual Machines into an existin
 | vm_cpu_hot_add_enabled | Flag to enable or disable hot adding CPUs to VMs | bool | false | no |
 | vm_memory_hot_add_enabled | Flag to enable or disable hot adding memory to VMs | bool | false | no |
 | vm_min_cpu | Minimum number of CPUs for each VM | number | 2 | no |
+| vm_os_type | OS type for the VM | string | `""` | no |
+| vm_hw_version | VM hardware version | string | `""` | no |
+| vm_firmware | VM firmware type (BIOS or UEFI) | string | `"bios"` | no |
+| vm_boot_delay | Boot delay in milliseconds | number | `0` | no |
+| vm_boot_retry_enabled | Enable boot retry | bool | `false` | no |
+| vm_boot_retry_delay | Boot retry delay in milliseconds | number | `0` | no |
+| vm_efi_secure_boot | Enable EFI secure boot | bool | `false` | no |
+| vm_enter_bios_setup_on_next_boot | Enter BIOS setup on next boot | bool | `false` | no |
 | vm_count | Number of VMs to create | number | 2 | no |
 | vm_metadata_entries | List of metadata entries for the VM | list(object({ key = string, value = string, type = string, user_access = string, is_system = bool })) | `[{ key = "Built By", value = "Terraform", type = "MetadataStringValue", user_access = "READWRITE", is_system = false }, { key = "Operating System", value = "Ubuntu Linux (64-Bit)", type = "MetadataStringValue", user_access = "READWRITE", is_system = false }, { key = "Server Role", value = "Web Server", type = "MetadataStringValue", user_access = "READWRITE", is_system = false }]` | No |
 | disks_per_vm | Number of disks to assign to each VM | number | 0 | no |
 | vm_disks | List of disks per virtual machine | list(object({ name = string, bus_number = number, unit_number = number })) | [] | no |
+| internal_disks | List of internal disks for VMs | list(object) | `[]` | no |
+| vm_internal_disk_allow_vm_reboot | Allow reboot when adding disks | bool | `true` | no |
 | network_interfaces | List of network interfaces for the VM | list(object({ type = string, adapter_type = string, name = string, ip_allocation_mode = string, ip = string, is_primary = bool })) | [...] | no |
 | vm_ips_index_multiplier | Number of network interfaces for each VM deployment | number | 1 | no |
 | vm_ips | List of IP addresses to assign to VMs | list(string) | `["", ""]` | no |
@@ -89,7 +107,7 @@ The Terraform code example for the main.tf file is below:
 
 ```terraform
 module "vcd_vm" {
-  source                            = "github.com/global-vmware/vcd_vm.git?ref=v2.2.0"
+  source                            = "github.com/global-vmware/vcd_vm.git?ref=v3.0.1"
 
   vdc_org_name                      = "<US1-VDC-ORG-NAME>"
   vdc_group_name                    = "<US1-VDC-GRP-NAME>"
@@ -130,20 +148,6 @@ module "vcd_vm" {
       type        = "MetadataStringValue"
       user_access = "READWRITE"
       is_system   = false
-    },
-    {
-      key         = "Server Role"
-      value       = "Web Server"
-      type        = "MetadataStringValue"
-      user_access = "READWRITE"
-      is_system   = false
-    },
-    {
-      key         = "Built By"
-      value       = "Build Engineering Team"
-      type        = "MetadataStringValue"
-      user_access = "READWRITE"
-      is_system   = false
     }
   ]
   
@@ -163,6 +167,25 @@ module "vcd_vm" {
     ip_allocation_mode    = "POOL"
     ip                    = ""
     is_primary            = false
+    }
+  ]
+
+  internal_disks  = [
+    {
+      size_in_mb      = 32768
+      bus_number      = 0
+      unit_number     = 1
+      bus_type        = "paravirtual"
+      iops            = 0
+      storage_profile = "Performance"
+    },
+    {
+      size_in_mb      = 32768
+      bus_number      = 0
+      unit_number     = 2
+      bus_type        = "paravirtual"
+      iops            = 0
+      storage_profile = "Capacity"
     }
   ]
 }

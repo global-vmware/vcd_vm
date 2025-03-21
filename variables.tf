@@ -45,6 +45,33 @@ variable "catalog_name" {
   default = ""
 }
 
+variable "boot_catalog_org_name" {
+  type = string
+  default = ""
+}
+
+variable "boot_catalog_name" {
+  type = string
+  default = ""
+}
+
+variable "inserted_media_iso_name" {
+  type        = string
+  description = "Name of the ISO in the catalog that will be the inserted boot media"
+  default     = ""
+}
+
+variable "inserted_media_eject_force" {
+  description = "Allows to pass answer to question in vCD (The guest operating system has locked the CD-ROM door and is probably using the CD-ROM) True means Disconnect anyway (and override the lock)"
+  default = true
+}
+
+variable "boot_iso_image_name" {
+  type        = string
+  description = "Name of the ISO in the catalog used to derive boot_image_id"
+  default     = ""
+}
+
 variable "catalog_template_name" {
   type = string
   default = ""
@@ -89,6 +116,46 @@ variable "vm_min_cpu" {
   default = 2
 }
 
+variable "vm_os_type" {
+  type    = string
+  default = ""
+}
+
+variable "vm_hw_version" {
+  type = string
+  default = ""
+}
+
+variable "vm_firmware" {
+  type = string
+  default = "bios"
+}
+
+variable "vm_boot_delay" {
+  type    = number
+  default = 0
+}
+
+variable "vm_boot_retry_enabled" {
+  type    = bool
+  default = false
+}
+
+variable "vm_boot_retry_delay" {
+  type    = number
+  default = 0
+}
+
+variable "vm_efi_secure_boot" {
+  type    = bool
+  default = false
+}
+
+variable "vm_enter_bios_setup_on_next_boot" {
+  type = bool
+  default = false
+}
+
 variable "vm_count" {
   type = number
   default = 2
@@ -120,6 +187,24 @@ variable "vm_disks" {
     unit_number = number
   }))
   default     = []
+}
+
+variable "internal_disks" {
+  description = "List of internal disks for each VM"
+  type = list(object({
+    size_in_mb      = number
+    bus_number      = number
+    unit_number     = number
+    bus_type        = string
+    iops            = number
+    storage_profile = string
+  }))
+  default = []
+}
+
+variable "vm_internal_disk_allow_vm_reboot" {
+  description = "Ensures disks can be added to powered-on VMs"
+  default     = true
 }
 
 variable "network_interfaces" {
