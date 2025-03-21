@@ -12,6 +12,8 @@ terraform.auto.tfvars
 providers.tf
 terraform.tfvars
 terraform.auto.tfvars
+*.auto.tfvars
+*.auto.tfvars.bak
 
 # Crash log files
 crash.log

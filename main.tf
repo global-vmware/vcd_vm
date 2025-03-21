@@ -75,13 +75,13 @@ data "vcd_catalog_media" "boot_image_iso" {
 }
 
 resource "vcd_inserted_media" "media_iso" {
-  for_each    = var.inserted_media_iso_name != "" ? zipmap(var.vm_name, var.vm_name) : {}
+  for_each = var.inserted_media_iso_name != "" ? { for i in range(var.vm_count) : i => i } : {}
+
   org         = var.vdc_org_name
   catalog     = var.boot_catalog_name
   name        = var.inserted_media_iso_name
   vapp_name   = vcd_vm.vm[each.key].vapp_name
   vm_name     = vcd_vm.vm[each.key].name
-
   eject_force = var.inserted_media_eject_force
 
   depends_on = [vcd_vm.vm]
