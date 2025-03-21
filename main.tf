@@ -42,14 +42,15 @@ data "vcd_vm_sizing_policy" "sizing_policy" {
   name = var.vm_sizing_policy_name
 }
 
-data "vcd_catalog" "catalog" {
+data "vcd_catalog" "template_catalog" {
   org   = var.catalog_org_name
   name  = var.catalog_name
 }
 
 data "vcd_catalog_vapp_template" "template" {
+  count       = length(var.catalog_template_name) > 0 ? 1 : 0
   org         = var.vdc_org_name
-  catalog_id  = data.vcd_catalog.catalog.id
+  catalog_id  = data.vcd_catalog.template_catalog.id
   name        = var.catalog_template_name
 }
 
@@ -125,7 +126,7 @@ resource "vcd_vm" "vm" {
   vdc                     = var.vdc_name
   name                    = var.vm_name_format != "" ? format(var.vm_name_format, var.vm_name[each.key % length(var.vm_name)], each.key + 1) : var.vm_name[each.key % length(var.vm_name)]
   computer_name           = var.computer_name_format != "" ? format(var.computer_name_format, var.computer_name[each.key % length(var.computer_name)], each.key + 1) : var.computer_name[each.key % length(var.computer_name)]
-  vapp_template_id        = data.vcd_catalog_vapp_template.template.id
+  vapp_template_id        = length(var.catalog_template_name) > 0 ? data.vcd_catalog_vapp_template.template[0].id : null
   cpu_hot_add_enabled     = var.vm_cpu_hot_add_enabled
   memory_hot_add_enabled  = var.vm_memory_hot_add_enabled
   sizing_policy_id        = data.vcd_vm_sizing_policy.sizing_policy.id
