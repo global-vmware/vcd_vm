@@ -89,21 +89,21 @@ resource "vcd_inserted_media" "media_iso" {
 
 resource "vcd_vm_internal_disk" "internal_disk" {
   for_each = {
-  for idx, disk in flatten([
-    for vm_index, vm in vcd_vm.vm : [
-      for disk in var.internal_disks : {
-        vm_index       = vm_index
-        vm_name        = vm.name
-        size_in_mb     = disk.size_in_mb
-        bus_number     = disk.bus_number
-        unit_number    = disk.unit_number
-        bus_type       = disk.bus_type
-        iops           = disk.iops
-        storage_profile = disk.storage_profile
-      }
-    ]
-  ]) : "${disk.vm_index}-${disk.unit_number}" => disk
-}
+    for idx, disk in flatten([
+      for vm_index, vm in vcd_vm.vm : [
+        for disk in var.internal_disks : {
+          vm_index       = vm_index
+          vm_name        = vm.name
+          size_in_mb     = disk.size_in_mb
+          bus_number     = disk.bus_number
+          unit_number    = disk.unit_number
+          bus_type       = disk.bus_type
+          iops           = disk.iops
+          storage_profile = disk.storage_profile
+        }
+      ]
+    ]) : "${disk.vm_index}-${disk.unit_number}" => disk
+  }
 
   org         = var.vdc_org_name
   vdc         = var.vdc_name
@@ -134,6 +134,8 @@ resource "vcd_vm" "vm" {
   os_type                 = var.vm_os_type
   hardware_version        = var.vm_hw_version
   firmware                = var.vm_firmware
+
+  guest_properties = var.enable_guest_properties ? var.guest_properties_map : {}
 
   boot_options {
     boot_delay          = var.vm_boot_delay

@@ -83,6 +83,9 @@ This Terraform module will deploy "X" Number of Virtual Machines into an existin
 | vm_customization_join_domain_password | Password to be used for domain join. | string | null | no |
 | vm_customization_join_domain_account_ou | Organizational unit to be used for domain join. | string | null | no |
 | vm_customization_initscript | Provide initscript to be executed when customization is applied. | string | null | no |
+| enable_guest_properties | Boolean to enable or disable the use of guest properties for VMs | bool | false | no |
+| guest_properties_map | A map of guest property key-value pairs to apply to each VM. | map(string) | {} | no |
+
 
 `NOTE:` Each object in the `vm_metadata_entries` list must have the following attributes:
 
