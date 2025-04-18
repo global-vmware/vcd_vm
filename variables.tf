@@ -344,9 +344,4 @@ variable "guest_properties_map" {
   description = "Map of vApp guest properties (e.g., for F5 or other appliances)"
   type        = map(string)
   default     = {}
-
-  validation {
-    condition     = var.enable_guest_properties == false || length(var.guest_properties_map) > 0
-    error_message = "enable_guest_properties is true but guest_properties_map is empty."
-  }
 }
