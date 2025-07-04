@@ -110,7 +110,7 @@ The Terraform code example for the main.tf file is below:
 
 ```terraform
 module "vcd_vm" {
-  source                            = "github.com/global-vmware/vcd_vm.git?ref=v3.0.1"
+  source                            = "github.com/global-vmware/vcd_vm.git?ref=v3.0.3"
 
   vdc_org_name                      = "<US1-VDC-ORG-NAME>"
   vdc_group_name                    = "<US1-VDC-GRP-NAME>"
@@ -127,8 +127,7 @@ module "vcd_vm" {
   vm_count                          = 2
 
   org_networks                 = [
-    { name = "US1-Segment-01", type = "routed" },
-    { name = "US1-Segment-02", type = "routed" }
+    { name = "US1-Segment-01", type = "routed" }
   ]
 
   vm_name                           = ["Production App Web Server"]
@@ -166,7 +165,7 @@ module "vcd_vm" {
     {
     type                  = "org"
     adapter_type          = "VMXNET3"
-    name                  = "US1-Segment-02"
+    name                  = "US1-Segment-01"
     ip_allocation_mode    = "POOL"
     ip                    = ""
     is_primary            = false

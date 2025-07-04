@@ -24,6 +24,18 @@ locals {
   network_data = { for net in var.org_networks : net.name => net }
 }
 
+locals {
+  vm_networks_per_vm = {
+    for idx in range(var.vm_count) : idx => {
+      for ni in slice(
+        var.network_interfaces,
+        idx * var.vm_ips_index_multiplier,
+        (idx + 1) * var.vm_ips_index_multiplier
+      ) : "${ni.name}-${ni.ip}" => ni
+    }
+  }
+}
+
 data "vcd_network_routed_v2" "segment_routed" {
   for_each        = { for name, net in local.network_data : name => net if net.type == "routed" }
   org             = var.vdc_org_name
@@ -172,14 +184,15 @@ resource "vcd_vm" "vm" {
   }
 
   dynamic "network" {
-  for_each = var.network_interfaces
+    for_each = local.vm_networks_per_vm[each.key]
 
     content {
-      type                = network.value.type
-      name                = network.value.name
-      ip_allocation_mode  = network.value.ip_allocation_mode
-      ip                  = network.value.ip_allocation_mode == "MANUAL" ? element(var.vm_ips, each.key * var.vm_ips_index_multiplier + network.key) : ""
-      is_primary          = network.value.is_primary
+      type               = network.value.type
+      adapter_type       = network.value.adapter_type
+      name               = network.value.name
+      ip_allocation_mode = network.value.ip_allocation_mode
+      ip                 = network.value.ip
+      is_primary         = network.value.is_primary
     }
   }
 
